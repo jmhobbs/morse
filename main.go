@@ -5,12 +5,13 @@ import (
 	"io"
 	"log"
 	"os"
+	"strings"
 )
 
 // 2 bytes max, uint16
 // 01 - dot
 // 11 - dash
-var alphabet = map[uint16]string{
+var morseToChar = map[uint16]string{
 	0b0111:       "A",
 	0b11010101:   "B",
 	0b11011101:   "C",
@@ -49,6 +50,29 @@ var alphabet = map[uint16]string{
 	0b1111111101: "9",
 }
 
+var charToMorse = map[string]uint16{}
+
+func init() {
+	for morse, char := range morseToChar {
+		charToMorse[char] = morse
+	}
+}
+
+func morseToString(morse uint16) string {
+	buf := []string{}
+	for {
+		if morse&0b11 == 0b11 {
+			buf = append(buf, "-")
+		} else if morse&0b01 == 0b01 {
+			buf = append(buf, ".")
+		} else {
+			break
+		}
+		morse >>= 2
+	}
+	return strings.Join(buf, "")
+}
+
 func main() {
 	var (
 		n    int
@@ -63,7 +87,7 @@ func main() {
 			if err != io.EOF {
 				log.Println(err)
 			}
-			fmt.Print(alphabet[char])
+			fmt.Print(morseToChar[char])
 			break
 		}
 		if n == 0 {
@@ -79,7 +103,7 @@ func main() {
 			break
 		case '\t':
 			if char > 0 {
-				fmt.Print(alphabet[char])
+				fmt.Print(morseToChar[char])
 				char = 0
 			}
 			fmt.Printf(" ")
@@ -88,12 +112,12 @@ func main() {
 			if char == 0 {
 				fmt.Print(" ")
 			} else {
-				fmt.Print(alphabet[char])
+				fmt.Print(morseToChar[char])
 				char = 0
 			}
 			break
 		case '\n':
-			fmt.Print(alphabet[char])
+			fmt.Print(morseToChar[char])
 			char = 0
 			fmt.Println()
 			break
