@@ -1,9 +1,8 @@
 package main
 
 import (
-	"bufio"
+	"flag"
 	"fmt"
-	"io"
 	"log"
 	"os"
 
@@ -11,51 +10,25 @@ import (
 )
 
 func main() {
-	var (
-		err  error
-		c    rune
-		char morse.Morse
-	)
-
-	r := bufio.NewReader(os.Stdin)
-	for {
-		if c, _, err = r.ReadRune(); err != nil {
-			if err != io.EOF {
-				log.Println(err)
-			}
-			fmt.Printf("%c", char.Rune())
-			break
-		}
-
-		switch c {
-		case '-':
-			char = char.Dash()
-			break
-		case '.':
-			char = char.Dot()
-			break
-		case '\t':
-			if char > 0 {
-				fmt.Printf("%c", char.Rune())
-				char = 0
-			}
-			fmt.Printf(" ")
-			break
-		case ' ':
-			if char == 0 {
-				fmt.Print(" ")
-			} else {
-				fmt.Printf("%c", char.Rune())
-				char = 0
-			}
-			break
-		case '\n':
-			fmt.Printf("%c", char.Rune())
-			char = 0
-			fmt.Println()
-			break
-		default:
-			log.Printf("Invalid input character: %c\n", r)
-		}
+	flag.Usage = func() {
+		fmt.Fprintln(flag.CommandLine.Output(), "usage: morse [encode|decode]")
 	}
+	flag.Parse()
+	action := flag.Arg(0)
+
+	if action == "encode" {
+		err := morse.Encode(os.Stdin, os.Stdout)
+		if err != nil {
+			log.Fatal(err)
+		}
+	} else if action == "decode" || action == "" {
+		err := morse.Decode(os.Stdin, os.Stdout)
+		if err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		flag.Usage()
+		os.Exit(1)
+	}
+
 }
