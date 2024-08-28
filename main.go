@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 	"log"
@@ -11,26 +12,22 @@ import (
 
 func main() {
 	var (
-		n    int
 		err  error
-		buf  []byte = make([]byte, 1)
+		c    rune
 		char morse.Morse
 	)
 
+	r := bufio.NewReader(os.Stdin)
 	for {
-		n, err = os.Stdin.Read(buf)
-		if err != nil {
+		if c, _, err = r.ReadRune(); err != nil {
 			if err != io.EOF {
 				log.Println(err)
 			}
-			fmt.Print(char.ToString())
-			break
-		}
-		if n == 0 {
+			fmt.Printf("%c", char.Rune())
 			break
 		}
 
-		switch buf[0] {
+		switch c {
 		case '-':
 			char = char.Dash()
 			break
@@ -39,7 +36,7 @@ func main() {
 			break
 		case '\t':
 			if char > 0 {
-				fmt.Print(char.ToString())
+				fmt.Printf("%c", char.Rune())
 				char = 0
 			}
 			fmt.Printf(" ")
@@ -48,17 +45,17 @@ func main() {
 			if char == 0 {
 				fmt.Print(" ")
 			} else {
-				fmt.Print(char.ToString())
+				fmt.Printf("%c", char.Rune())
 				char = 0
 			}
 			break
 		case '\n':
-			fmt.Print(char.ToString())
+			fmt.Printf("%c", char.Rune())
 			char = 0
 			fmt.Println()
 			break
 		default:
-			log.Printf("Invalid input character: %c\n", buf[0])
+			log.Printf("Invalid input character: %c\n", r)
 		}
 	}
 }

@@ -14,7 +14,15 @@ func New() *Morse {
 	return &m
 }
 
-func (m Morse) ToMorseString() string {
+func NewFromRune(r rune) *Morse {
+	m, ok := runeToMorse[r]
+	if !ok {
+		return nil
+	}
+	return &m
+}
+
+func (m Morse) String() string {
 	buf := []string{}
 	for {
 		if m&Dash == Dash {
@@ -29,8 +37,8 @@ func (m Morse) ToMorseString() string {
 	return strings.Join(buf, "")
 }
 
-func (m Morse) ToString() string {
-	return morseToChar[m]
+func (m Morse) Rune() rune {
+	return morseToRune[m]
 }
 
 func (m Morse) Dot() Morse {
